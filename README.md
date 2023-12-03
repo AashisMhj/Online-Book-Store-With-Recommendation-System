@@ -85,6 +85,12 @@ enter : _python manage.py runserver_
           
           
 
-
-  
-
+## Installation setup
+```bash
+# run migration
+python manage.py migrate
+# create user
+python manage.py createsuperuser
+# run server
+python manage.py runserver
+```

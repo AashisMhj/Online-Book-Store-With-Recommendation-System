@@ -83,6 +83,10 @@ WSGI_APPLICATION = 'bookstore.wsgi.application'
 
 DATABASES = {
     'default': {
+        'ENGINE': "django.db.backends.sqlite3",
+        'NAME': 'bookstore.sqlite'
+    },
+    'development': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'bookstore',
         'USER': 'root',

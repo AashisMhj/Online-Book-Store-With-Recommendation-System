@@ -1,3 +1,5 @@
 venv/
 **/__pycache__/
 products/products/
+bookstore.sqlite
+cred.md
