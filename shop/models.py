@@ -3,6 +3,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.contrib.auth.models import Permission, User
 from django.core.validators import MaxValueValidator, MinValueValidator
+from django.db.models import Avg, Sum, F, ExpressionWrapper, FloatField, Subquery
 
 class Category(models.Model):
     name = models.CharField(max_length=150, db_index=True)
@@ -47,6 +48,14 @@ class Product(models.Model):
 
     def get_absolute_url(self):
         return reverse('shop:product_detail', args=[self.id, self.slug])
+    
+    @property
+    def weighted_score(self, weight_rating=0.7, weight_orders=0.3):
+        avg_rating = self.rated_products.aggregate(average_rating=Avg('rating'))['average_rating'] or 0
+        total_orders = self.order_items.aggregate(total_orders=models.Sum('quantity'))['total_orders'] or 0
+        weighted_score = (weight_rating * avg_rating) + (weight_orders * total_orders)
+
+        return weighted_score
 
 class Myrating(models.Model):
     user    = models.ForeignKey(User,related_name='rating',on_delete=models.CASCADE) 
@@ -58,3 +67,15 @@ class Myrating(models.Model):
 
     def get_absolute_url(self):
          return reverse('shop:product_detail', args=[self.id, self.slug])
+
+# class ProductManager(models.Manager):
+#     def get_trending_books(self, limit=10, weight_rating=0.7, weight_books_ordered = 0.3):
+#         trending_books = (
+#             self.get_queryset()
+#             .annotate(weight_score = models.ExpressionWrapper(
+#                 models.F('rating__value__avg') * weight_rating + models.F('bookssold__quantity') * weight_books_ordered,
+#                 output_field = models.FloatField()
+#             ))
+#             .order_by('-weighted_score')[:limit]
+#         )
+#         return trending_books

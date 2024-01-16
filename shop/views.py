@@ -6,6 +6,8 @@ from django.db.models import Q
 from django.contrib.auth.models import User
 from django.urls import reverse
 from .models import Category, Product, Myrating
+from django.db import models
+from django.db.models import Avg, Sum, F
 from django.contrib import messages
 from cart.forms import CartAddProductForm
 from django.db.models import Case, When
@@ -48,7 +50,7 @@ def recommend(request):
 def product_list(request, category_slug=None):
     category = None
     categories = Category.objects.all()
-    products = Product.objects.filter(available=True)
+    products = sorted(Product.objects.filter(available=True), key = lambda p : p.weighted_score, reverse=True )
     search_term=''
     if category_slug:
         category = get_object_or_404(Category, slug=category_slug)
